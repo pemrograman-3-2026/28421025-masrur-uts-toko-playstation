@@ -1,0 +1,85 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+enum Role{
+  ADMIN
+  CUSTOMER
+
+}
+
+model Admin { 
+  id Int @id @default(autoincrement())
+  username String @unique
+  password String
+  role  Role @default(ADMIN)  
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  
+  @@map("admins") //ini nama tabel
+}
+
+model Customer { 
+  id Int @id @default(autoincrement())
+  username String @unique
+  password String
+  role  Role @default(CUSTOMER)
+  address String
+  noTelp String 
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  transaksi Transaction[]
+  payment Payment[]
+  
+  @@map("customers") //ini nama tabel
+}
+
+
+model Product {
+  id Int @id @default(autoincrement())
+  name String 
+  type String 
+  price String 
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  payment Payment []
+
+  @@map("products")
+}
+
+
+model Transaction {
+  id Int @id @default(autoincrement())
+  amount  String
+  paymentMethod String
+  transactionDate DateTime @default(now())
+  customerID  Int
+  customer Customer @relation(fields: [customerID],references: [id])
+  payment Payment[]
+
+  @@map("transactions")
+
+}
+
+model Payment {
+  id Int @id @default(autoincrement())
+  status String
+  customerID Int
+  customer Customer @relation(fields: [customerID],references: [id] )
+  productID Int
+  product Product @relation(fields: [productID],references: [id] )
+  transactionID Int
+  transaction Transaction @relation(fields: [transactionID],references: [id]) 
+
+  @@map("payments")
+}
