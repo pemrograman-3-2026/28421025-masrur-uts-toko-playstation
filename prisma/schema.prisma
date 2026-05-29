@@ -50,6 +50,7 @@ model Product {
   name String 
   type String 
   price String 
+  image String
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
   payment Payment []

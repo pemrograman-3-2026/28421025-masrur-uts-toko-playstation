@@ -18,7 +18,7 @@ export const create = async (req,res) => {
 }
 
 export const getById = async (req,res) => {
-    const id =req.body.id
+    const id = req.params.id
     const transaction = await prisma.transaction.findUnique({
         where : {
             id : Number(id)
@@ -28,15 +28,7 @@ export const getById = async (req,res) => {
             payment: true
         }
     })
-    if (!transaction){
-        return res.status(400).json({
-            message : "data not found"
-        })
-    }
-     return res.json({
-        message : "successfully retrieved transaction data",
-        data : transaction
-    })
+     return res.json(transaction)
 }
 
 export const getALL =  async (req,res) => {
@@ -47,59 +39,34 @@ export const getALL =  async (req,res) => {
         }
     })
 
-     return res.json({
-        message : "successfully retrieved all data",
-        data : transaction
+     return res.json(transaction)
+}
+
+export const update = async (req, res) => {
+    const id = Number(req.params.id)
+
+    await prisma.transaction.update({
+        where: {
+            id: id
+        },
+        data: req.body
+    })
+
+    return res.json ({
+        message: 'Data has been updated'
     })
 }
 
-export const update = async (req,res) => {
-    try {
-        const { id, amount, paymentMethod } = req.body
+export const deleteTransaction = async (req, res) => {
+    const id = Number(req.params.id)
 
-        const updateTransaction = await prisma.transaction.update({
-            where: {
-                id: Number(id)
-            },
-            data: {
-                amount: amount,
-                paymentMethod: paymentMethod
-            },
-            include: {
-                customer: true,
-                payment: true
-            }
-        })
+    await prisma.transaction.delete({
+        where: {
+            id: id
+        }
+    })
 
-       return res.json({
-            message: "data updated successfully",
-            data: updateTransaction
-        })
-
-    } catch (error) {
-        
-       return res.status(400).json({
-            message: "id failed to update, id not found"
-        })
-    }
-}
-
-export const destroy = async (req, res) => {
-    try {
-        const { id } = req.body
-
-        await prisma.transaction.delete({
-            where: {
-                id: Number(id)
-            }
-        })
-
-        return res.json({
-            message: "Data deleted successfully"
-        })
-    } catch (error) {
-        return res.status(400).json({
-            message: "failed to delete, id not found"
-        })
-    }
+    return res.json({
+        message:'Data has been deleted'
+    })
 }

@@ -1,13 +1,21 @@
 import {prisma} from "../lib/prisma.js"
+import { existsSync, unlinkSync } from "fs"
+import { title } from "process";
+
+const removeFilesFromStatic = async (filename) => {
+    existsSync(`./uploads/${filename}`) && unlinkSync(`./uploads/${filename}`);
+}
 
 export const create = async (req,res) => {
+    const filename = req.file.filename
     const body = req.body
 
     await prisma.product.create({
         data : {
             name : body.name,
             type : body.type,
-            price : body.price
+            price : body.price,
+            image : filename
 
         }
     })
@@ -19,7 +27,7 @@ export const create = async (req,res) => {
 }
 
 export const getById = async (req,res) => {
-    const id =req.body.id
+    const id = req.params.id
     const product = await prisma.product.findUnique({
         where : {
             id : Number(id)
@@ -28,15 +36,7 @@ export const getById = async (req,res) => {
             payment: true
         }
     })
-    if (!product){
-        return res.status(400).json({
-            message : "data not found"
-        })
-    }
-     return res.json({
-        message : "successfully retrieved product data",
-        data : product
-    })
+     return res.json(product)
 }
 
 export const getALL =  async (req,res) => {
@@ -46,59 +46,60 @@ export const getALL =  async (req,res) => {
         }
     })
 
-     return res.json({
-        message : "successfully retrieved all data",
-        data : product
+     return res.json(product)
+}
+
+export const update = async (req, res) => {
+    const body = req.body
+
+    const oldImage = await prisma.product.findUnique({
+        where: {
+            id: Number(req.params.id)
+        },
+        select: {
+            image: true
+        }
+    })
+
+    let data = {
+        name : body.name,
+        type : body.type,
+        price : body.price
+    }
+
+    if (req.file) {
+        data = {
+            ...data,
+            image: req.file.filename
+        }
+    }
+
+    const updateData = await prisma.product.update({
+        where: {
+            id: Number(req.params.id)
+        },
+        data
+    })
+
+    if (req.file && updateData) {
+      await removeFilesFromStatic(oldImage.image)
+    }
+
+    res.json ({
+        message: 'Product has been updated'
     })
 }
 
-export const update = async (req,res) => {
-    try {
-        const { id, name, type, price } = req.body
+export const deleteProduct = async (req, res) => {
+    const id = Number(req.params.id)
 
-        const updateProduct = await prisma.product.update({
-            where: {
-                id: Number(id)
-            },
-            data: {
-                name: name,
-                type: type,
-                price: price
-            },
-            include: {
-                payment: true
-            }
-        })
+    await prisma.product.delete({
+        where: {
+            id: id
+        }
+    })
 
-       return res.json({
-            message: "data updated successfully",
-            data: updateProduct
-        })
-
-    } catch (error) {
-        
-       return res.status(400).json({
-            message: "id failed to update, id not found"
-        })
-    }
-}
-
-export const destroy = async (req, res) => {
-    try {
-        const { id } = req.body
-
-        await prisma.product.delete({
-            where: {
-                id: Number(id)
-            }
-        })
-
-        return res.json({
-            message: "Data deleted successfully"
-        })
-    } catch (error) {
-        return res.status(400).json({
-            message: "failed to delete, id not found"
-        })
-    }
+    return res.json({
+        message:'Data has been deleted'
+    })
 }

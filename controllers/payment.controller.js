@@ -19,7 +19,7 @@ export const create = async (req,res) => {
 }
 
 export const getById = async (req,res) => {
-    const id =req.body.id
+    const id = req.params.id
     const payment = await prisma.payment.findUnique({
         where : {
             id : Number(id)
@@ -30,15 +30,7 @@ export const getById = async (req,res) => {
             transaction: true
         }
     })
-    if (!payment){
-        return res.status(400).json({
-            message : "data not found"
-        })
-    }
-     return res.json({
-        message : "successfully retrieved payment data",
-        data : payment
-    })
+     return res.json(payment)
 }
 
 export const getALL =  async (req,res) => {
@@ -50,59 +42,34 @@ export const getALL =  async (req,res) => {
         }
     })
 
-     return res.json({
-        message : "successfully retrieved all data",
-        data : payment
+     return res.json(payment)
+}
+
+export const update = async (req, res) => {
+    const id = Number(req.params.id)
+
+    await prisma.payment.update({
+        where: {
+            id: id
+        },
+        data: req.body
+    })
+
+    return res.json ({
+        message: 'Data has been updated'
     })
 }
 
-export const update = async (req,res) => {
-    try {
-        const { id, status } = req.body
+export const deletePayment = async (req, res) => {
+    const id = Number(req.params.id)
 
-        const updatePayment = await prisma.payment.update({
-            where: {
-                id: Number(id)
-            },
-            data: {
-                status: status
-            },
-            include: {
-                customer: true,
-                product: true,
-                transaction: true
-            }
-        })
+    await prisma.payment.delete({
+        where: {
+            id: id
+        }
+    })
 
-       return res.json({
-            message: "data updated successfully",
-            data: updatePayment
-        })
-
-    } catch (error) {
-        
-       return res.status(400).json({
-            message: "id failed to update, id not found"
-        })
-    }
-}
-
-export const destroy = async (req, res) => {
-    try {
-        const { id } = req.body
-
-        await prisma.payment.delete({
-            where: {
-                id: Number(id)
-            }
-        })
-
-        return res.json({
-            message: "Data deleted successfully"
-        })
-    } catch (error) {
-        return res.status(400).json({
-            message: "failed to delete, id not found"
-        })
-    }
+    return res.json({
+        message:'Data has been deleted'
+    })
 }
