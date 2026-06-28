@@ -6,9 +6,9 @@ export const create = async (req,res) => {
     await prisma.payment.create({
         data : {
             status: body.status,
-            customerID: body.customerID,
-            productID: body.productID,
-            transactionID: body.transactionID
+            customerID: Number (body.customerID),
+            productID: Number (body.productID),
+            transactionID: Number (body.transactionID)
         }
     })
 

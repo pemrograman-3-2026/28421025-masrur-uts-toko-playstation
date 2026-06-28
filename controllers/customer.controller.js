@@ -68,3 +68,9 @@ export const login = async (req, res) => {
         }
     })
 }
+
+export const getALL =  async (req,res) => {
+    const customer = await prisma.customer.findMany({})
+
+     return res.json(customer)
+}

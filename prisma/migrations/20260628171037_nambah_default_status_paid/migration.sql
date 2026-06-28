@@ -1,0 +1,8 @@
+-- AlterTable
+ALTER TABLE `admins` MODIFY `role` ENUM('ADMIN', 'CUSTOMER') NOT NULL DEFAULT 'ADMIN';
+
+-- AlterTable
+ALTER TABLE `customers` MODIFY `role` ENUM('ADMIN', 'CUSTOMER') NOT NULL DEFAULT 'CUSTOMER';
+
+-- AlterTable
+ALTER TABLE `payments` MODIFY `status` VARCHAR(191) NOT NULL DEFAULT 'Paid';

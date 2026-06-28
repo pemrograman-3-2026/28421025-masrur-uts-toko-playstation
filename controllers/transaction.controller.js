@@ -7,7 +7,7 @@ export const create = async (req,res) => {
         data : {
             amount: body.amount,
             paymentMethod: body.paymentMethod,
-            customerID: body.customerID
+            customerID: Number (body.customerID)
         }
     })
 
