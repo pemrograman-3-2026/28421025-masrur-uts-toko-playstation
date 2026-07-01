@@ -65,7 +65,7 @@ model Transaction {
   paymentMethod String
   transactionDate DateTime @default(now())
   customerID  Int
-  customer Customer @relation(fields: [customerID],references: [id])
+  customer Customer @relation(fields: [customerID],references: [id], onDelete: Cascade, onUpdate: Cascade)
   payment Payment[]
 
   @@map("transactions")
@@ -76,11 +76,11 @@ model Payment {
   id Int @id @default(autoincrement())
   status String @default("Paid")
   customerID Int
-  customer Customer @relation(fields: [customerID],references: [id] )
+  customer Customer @relation(fields: [customerID],references: [id], onDelete: Cascade, onUpdate: Cascade )
   productID Int
-  product Product @relation(fields: [productID],references: [id] )
+  product Product @relation(fields: [productID],references: [id], onDelete: Cascade, onUpdate: Cascade )
   transactionID Int
-  transaction Transaction @relation(fields: [transactionID],references: [id]) 
+  transaction Transaction @relation(fields: [transactionID],references: [id], onDelete: Cascade, onUpdate: Cascade) 
 
   @@map("payments")
 }
